@@ -1,6 +1,6 @@
 import sys
 
-def Traitement(nom_exp, valeur_resistance, freq_coupure = 0):
+def Traitement(nom_exp, valeur_resistance, amplification = 1., diviseur = 1., offset = 0., freq_coupure = 0.):
     import numpy as np
     from Graphique import Graphique_Simple
     from Graphique import Graphique_Double_Echelle
@@ -8,9 +8,9 @@ def Traitement(nom_exp, valeur_resistance, freq_coupure = 0):
     from Filtre import Passe_bas
 
     data = np.loadtxt(nom_exp+'.dat')
-    Temps = data[:,1]/1000;
-    Tension = data[:,2]
-    Intensite = data[:,3]/valeur_resistance;
+    Temps = data[:,1]/1000000.
+    Tension = (data[:,2]-offset)*diviseur/amplification
+    Intensite = Tension/(valeur_resistance);
 
     if freq_coupure != 0:
             Tension = Passe_bas(Temps, Tension, freq_coupure)
@@ -29,9 +29,15 @@ def Traitement(nom_exp, valeur_resistance, freq_coupure = 0):
 
 if __name__ == '__main__':
     print 'sys.argv: ', sys.argv
-    if len(sys.argv) == 2:
+    if len(sys.argv) == 3:
         Traitement(sys.argv[1], sys.argv[2])
-    elif len(sys.argv) == 3:
+    elif len(sys.argv) == 4:
         Traitement(sys.argv[1], sys.argv[2], sys.argv[3])
+    elif len(sys.argv) == 5:
+        Traitement(sys.argv[1], sys.argv[2], sys.argv[3], sys.argv[4])
+    elif len(sys.argv) == 6:
+        Traitement(sys.argv[1], sys.argv[2], sys.argv[3], sys.argv[4], sys.argv[5])
+    elif len(sys.argv) == 7:
+        Traitement(sys.argv[1], sys.argv[2], sys.argv[3], sys.argv[4], sys.argv[5], sys.argv[6])
     else:
         message('No argument')
