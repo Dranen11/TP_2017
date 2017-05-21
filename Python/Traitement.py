@@ -2,6 +2,7 @@ import sys
 
 def Traitement(nom_exp, valeur_resistance, amplification = 1., diviseur = 1., offset = 0., freq_coupure = 0.):
     import numpy as np
+    from scipy import fftpack
     from Graphique import Graphique_Simple
     from Graphique import Graphique_Double_Echelle
     from Integration import Integrale_Trapeze
@@ -20,8 +21,8 @@ def Traitement(nom_exp, valeur_resistance, amplification = 1., diviseur = 1., of
     Puissance = Tension*Intensite;
 
     freq_echantillonage = Temps[Temps.size-1]/Temps.size
-    freqs = np.fft.fftfreq(Temps.size, d=freq_echantillonage)
-    TFT = abs(np.fft.fft(Tension))
+    freqs = fftpack.fftfreq(Temps.size, d=freq_echantillonage)
+    TFT = abs(fftpack.fft(Tension-np.mean(Tension)))
 
     Graphique_Double_Echelle(Temps, Tension, Intensite, x_label = 'Temps [s]', y1_label = 'Tension [V]', y2_label = 'Intensite [A]', save_name = 'Graphique_'+nom_exp+'_TI', graph_name = 'Evolution de la tension et du courant au cours du temps')
     Graphique_Simple(Temps, Tension, x_label = 'Temps [s]', y_label = 'Tension [V]', save_name = 'Graphique_'+nom_exp+'_T', graph_name = 'Evolution de la tension au cours du temps')
