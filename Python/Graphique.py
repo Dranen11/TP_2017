@@ -2,7 +2,10 @@ def Graphique_Simple(x, y,x_label = "",y_label = "", graph_name = "", linestyle 
     import numpy as np
     import matplotlib.pyplot as plt
 
-    plt.figure(figsize=(16,6))
+
+    plt.rcParams.update({'font.size': 22})
+
+    plt.figure(figsize=(16,7.5))
     plt.plot(x, y, linestyle)
     plt.xlabel(x_label)
     plt.ylabel(y_label)

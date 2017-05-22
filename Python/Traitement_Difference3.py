@@ -35,9 +35,9 @@ def Traitement_Difference3(nom_exp1a, nom_exp1b, nom_exp1c, nom_exp2a, nom_exp2b
     Temps2b = Temps2b - Temps2b[0]
     Tension2b = (np.asarray(data2b[:,1], dtype=float)-offset)*diviseur/amplification
 
-    Temps2c = np.asarray(data2[:,0], dtype=float)/1000000.
-    Temps2c = Temps2b - Temps2b[0]
-    Tension2c = (np.asarray(data2b[:,1], dtype=float)-offset)*diviseur/amplification
+    Temps2c = np.asarray(data2c[:,0], dtype=float)/1000000.
+    Temps2c = Temps2c - Temps2c[0]
+    Tension2c = (np.asarray(data2c[:,1], dtype=float)-offset)*diviseur/amplification
 
     i1a = 0
     for i in range(0, Temps1a.size):
@@ -74,6 +74,19 @@ def Traitement_Difference3(nom_exp1a, nom_exp1b, nom_exp1c, nom_exp2a, nom_exp2b
         if abs(Temps2c[i2c]-t2c) > abs(Temps2c[i]-t2c) :
             i2c = i
 
+#    if t1a + di > Temps1a.size :
+#        di = Temps1a.size-t1a-1
+#    if t1b + di > Temps1b.size :
+#        di = Temps1b.size-t1b-1
+#    if t1c + di > Temps1c.size :
+#        di = Temps1c.size-t1c-1
+#    if t2a + di > Temps2a.size :
+#        di = Temps2a.size-t2a-1
+#    if t2b + di > Temps2b.size :
+#        di = Temps2b.size-t2b-1
+#    if t2c + di > Temps2c.size :
+#        di = Temps2c.size-t2c-1
+
     Temps = np.zeros(di)
     T1a = np.zeros(di)
     T1b = np.zeros(di)
@@ -82,6 +95,7 @@ def Traitement_Difference3(nom_exp1a, nom_exp1b, nom_exp1c, nom_exp2a, nom_exp2b
     T2b = np.zeros(di)
     T2c = np.zeros(di)
 
+#    di = di-1
     for i in range(i1a, i1a+di):
         Temps[i-i1a] = Temps1a[i]-Temps1a[i1a]
         T1a[i-i1a] = Tension1a[i]
@@ -89,8 +103,8 @@ def Traitement_Difference3(nom_exp1a, nom_exp1b, nom_exp1c, nom_exp2a, nom_exp2b
     for i in range(i1b, i1b+di):
         T1b[i-i1b] = Tension1b[i]
 
-    for i in range(i1b, i1b+di):
-        T1b[i-i1b] = Tension1b[i]
+    for i in range(i1c, i1c+di):
+        T1c[i-i1c] = Tension1c[i]
 
     for i in range(i2a, i2a+di):
         T2a[i-i2a] = Tension2a[i]
@@ -98,18 +112,45 @@ def Traitement_Difference3(nom_exp1a, nom_exp1b, nom_exp1c, nom_exp2a, nom_exp2b
     for i in range(i2b, i2b+di):
         T2b[i-i2b] = Tension2b[i]
 
-    for i in range(i2b, i2b+di):
-        T2b[i-i2b] = Tension2b[i]
+    for i in range(i2c, i2c+di):
+        T2c[i-i2c] = Tension2c[i]
 
+    Temps =  Temps - Temps[0]
     Tension = T1a+T1b+T1c-T2a-T2b-T2c
+    Tension = Tension/3.
     freq_echantillonage = Temps[Temps.size-1]/Temps.size
     freqs = fftpack.fftfreq(Temps.size, d=freq_echantillonage)
     TFT_M = abs(fftpack.fft(Tension-np.mean(Tension)))
     TFT = abs(fftpack.fft(Tension))
 
-    Graphique_Simple(Temps, Tension, x_label = 'Temps [s]', y_label = 'Tension [V]', save_name = 'Graphique_'+nom_resultat+'_T', graph_name = 'Difference de la tension au cours du temps')
-    Graphique_Simple(freqs, TFT, x_label = 'Temps [s]', y_label = 'Tension [V]', save_name = 'Graphique_'+nom_resultat+'_TFT', graph_name = 'TF Difference de la tension au cours du temps')
-    Graphique_Simple(freqs, TFT_M, x_label = 'Temps [s]', y_label = 'Tension [V]', save_name = 'Graphique_'+nom_resultat+'_TTF-M', graph_name = 'TF sans la composante continu Difference de la tension au cours du temps')
+    Graphique_Simple(Temps, Tension*1000., x_label = 'Temps [s]', y_label = 'Tension [mV]', save_name = 'Graphique_'+nom_resultat+'_T', graph_name = 'Difference de la tension au cours du temps')
+    Graphique_Simple(freqs, TFT, x_label = 'Frequence [Hz]', y_label = 'Amplitude', save_name = 'Graphique_'+nom_resultat+'_TFT', graph_name = 'TF Difference de la tension au cours du temps')
+    Graphique_Simple(freqs, TFT_M, x_label = 'Frequence [Hz]', y_label = 'Amplitude', save_name = 'Graphique_'+nom_resultat+'_TFT-M', graph_name = 'TF sans la composante continu Difference de la tension au cours du temps')
+
+    Tension = Passe_bas(Temps,Tension, 20)
+
+    freq_echantillonage = Temps[Temps.size-1]/Temps.size
+    freqs = fftpack.fftfreq(Temps.size, d=freq_echantillonage)
+    TFT_M = abs(fftpack.fft(Tension-np.mean(Tension)))
+    TFT = abs(fftpack.fft(Tension))
+
+    Graphique_Simple(Temps, Tension*1000., x_label = 'Temps [s]', y_label = 'Tension [mV]', save_name = 'Graphique_'+nom_resultat+'_TC', graph_name = 'Difference de la tension au cours du temps')
+    Graphique_Simple(freqs, TFT, x_label = 'Frequence [Hz]', y_label = 'Amplitude', save_name = 'Graphique_'+nom_resultat+'_TFTC', graph_name = 'TF Difference de la tension au cours du temps')
+    Graphique_Simple(freqs, TFT_M, x_label = 'Frequence [Hz]', y_label = 'Amplitude', save_name = 'Graphique_'+nom_resultat+'_TFT-MC', graph_name = 'TF sans la composante continu Difference de la tension au cours du temps')
+
+
+    t = 2.
+    d = Temps[Temps.size-1] - 2. - t
+    ig = 0
+    for i in range(0, Temps.size):
+        if abs(Temps[ig]-t) > abs(Temps[i]-t) :
+            ig = i
+    dig = 0
+    for i in range(ig, Temps.size):
+        if abs(Temps1a[dig+ig]-(t+d)) > abs(Temps[i]-(t+d)) :
+            dig = i - ig
+    print Temps[ig], ' ', Temps[ig+dig]
+    print np.mean(Tension[ig:ig+dig]), '+-', np.std(Tension[ig:ig+dig])
 
 
 
